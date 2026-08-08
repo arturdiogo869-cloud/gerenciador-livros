@@ -1,22 +1,21 @@
 #include <iostream>
-#include <vector>
+#include <fstream>
 #include <string>
+#include <vector>
 
-// CODIGO C++ FEITO POR ARTUR AVEIRO DIOGO!!!
-
-// Estrutura para otimizar classificacao de livros
-struct infoLivros {
+class Dados{
+public:
 	std::string name;
-	int ano;
 	std::string autor;
+	std::string ano;	
 };
 
-// Funcao com retorno de valor (inteiro) sobre opcoes de escolha
 int Menu(){
 	int escolha;
-	std::cout << "===ARMAZENAMENTO DE LIVROS===\n";
-	std::cout << "1. Adicionar livro\n";
-	std::cout << "2. Listar livro\n";
+	
+	std::cout << "---ORGANIZADOR DE BIBLIOTECA---\n";
+	std::cout << "1. Listar livro\n";
+	std::cout << "2. Mostrar livros\n";
 	std::cout << "3. Remover livro\n";
 	std::cout << "4. SAIR\n";
 	
@@ -24,92 +23,126 @@ int Menu(){
 	return escolha;
 }
 
-// Funcao modificadora, adicionando um livro ao vector (listaAdd), a modificando e usando o Struct (infoLivros) para agilidade e limpeza de codigo
-void AdicionarLivro(std::vector<infoLivros> &listaAdd){
-	int qtd;
-	std::cout << "Quantos livros deseja adicionar? ";
-	std::cin >> qtd;
-	
-	for(int i = 0; i < qtd; i++){
-		int ano;
-		std::string nome;
-		std::string autor;
-		
-		std::cout << "Diga as infomacoes do livro: " << i+1 << std::endl;
-		
-		std::cout << "Ano: ";
-		std::cin >> ano;
-		
-		std::cin.ignore();
-		
-		std::cout << "Nome: ";
-		std::getline(std::cin, nome); 
-		
-		std::cout << "Autor: ";
-		std::getline(std::cin, autor); 
-		
-		infoLivros config;
-		config.name = nome;
-		config.autor = autor;
-		config.ano = ano;
-		
-		listaAdd.push_back(config);
-	}
-}
-
-// Funcao apenas para mostrar livros armazenados no vector (nescessario para remocao de livros)
-void mostrarLista(const std::vector<infoLivros> &listaAdd){
-	if(listaAdd.size() > 0){
-		for(int i = 0; i < listaAdd.size(); i++){
-			std::cout << "livro " << i << ": nome: " << listaAdd[i].name << ", data de lancamento: " << listaAdd[i].ano << ", autor: " << listaAdd[i].autor << std::endl; 
-		}		
-	}else{
-		std::cout << "Nenhum livro adicionado ainda!\n";
-	}
-}
-
-// Funcao responsavel para apagar algum livro especifico do indice
-void removerLivro(std::vector<infoLivros> &listaAdd){
-	if(!listaAdd.empty()){ 
-        int deletar;
-        std::cout << "Qual o indice do livro que deseja remover? ";
-        std::cin >> deletar;
-        
-        if(deletar < 0 || deletar >= listaAdd.size()){
-            std::cout << "Invalido!\n";
-        }else{
-            listaAdd.erase(listaAdd.begin() + deletar);
-            std::cout << "Livro removido com sucesso!\n";
+void SalvarTodosLivros(const std::vector<Dados> &lista) {
+    std::ofstream saveLista("Lista.txt"); 
+    
+    if (saveLista.is_open()) {
+        for (int i = 0; i < lista.size(); i++) {
+            saveLista << lista[i].name << "\n";
+            saveLista << lista[i].autor << "\n";
+            saveLista << lista[i].ano << "\n";
         }
-    } else {
-        std::cout << "Nenhum livro listado ainda!\n";
+        saveLista.close();
     }
 }
 
-// Estrutura principal (main) para loop de funcionamento, sendo interrompido na escolha 4 do menu
-int main(){
-	std::vector<infoLivros> listaAdd;
-	int escolha = 0;
+void ListarLivro(std::vector<Dados> &lista){
+	int qtd;
+	std::ofstream saveLista("Lista.txt", std::ios::app);
 	
-	while(escolha!=4){	
-		escolha = Menu();
+	std::cout << "Quantos livros deseja listar?\n";
+	std::cin >> qtd;
+	std::cin.ignore();
+	
+	if(saveLista.is_open()){
+		for(int i = 0; i < qtd; i++){
+			Dados analise;
+			
+			std::cout << "Diga o nome do livro:\n";
+			std::getline(std::cin, analise.name);
+			
+			std::cout << "Diga o nome do autor:\n";
+			std::getline(std::cin, analise.autor);
+			
+			std::cout << "Diga o ano em que foi publicado:\n";
+			std::cin >> analise.ano;
+			
+			lista.push_back(analise); 
+			saveLista << analise.name << "\n";
+            saveLista << analise.autor << "\n";
+            saveLista << analise.ano << "\n";
+		}
+	}else{
+		std::cout << "Erro no arquivo de salvamento!\n";
+	}
+	
+	saveLista.close();
+}
+
+void CarregarLivros(std::vector<Dados> &lista){
+	std::ifstream arquivo("Lista.txt");
+	
+	if (arquivo.is_open()) {
+        lista.clear(); 
+        Dados temp;
+
+        while(std::getline(arquivo, temp.name)){
+            std::getline(arquivo, temp.autor);
+            
+            arquivo >> temp.ano;
+            arquivo.ignore(); 
+
+            lista.push_back(temp);
+        }
+        
+        arquivo.close();
+    }
+}
+
+void MostrarLista(const std::vector<Dados> &lista){
+	if(lista.size() > 0){
+		for(int i = 0; i < lista.size(); i++){
+			std::cout << "Livro " << i+1 << ": " << lista[i].name << ", do autor: " << lista[i].autor << ", do ano de: " << lista[i].ano << ";" << std::endl;
+		}	
+	}else{
+		std::cout << "Nenhum livro adicionado!\n";
+	}
+}
+
+void RemoverLivro(std::vector<Dados> &lista){
+	int indice;
+	
+	std::cout << "Qual livro deseja remover?\n";
+	MostrarLista(lista);
+	
+	std::cin >> indice;
+	std::cin.ignore();
+	
+	if(indice >= 1 && indice <= lista.size()){
+        lista.erase(lista.begin() + (indice - 1));
+        
+        SalvarTodosLivros(lista);
+        
+        std::cout << "Livro removido!\n";
+    }else{
+        std::cout << "Indice invalido!\n";
+    }
+}
+
+int main(){
+	int escolhido = 0;
+	std::vector<Dados> lista;
+	CarregarLivros(lista);
+	
+	while(escolhido!=4){
+		escolhido = Menu();
 		
-		switch(escolha){
+		switch(escolhido){
 			case 1:
-				AdicionarLivro(listaAdd);
+				ListarLivro(lista);
 				break;
 			case 2:
-				mostrarLista(listaAdd);
+				MostrarLista(lista);
 				break;
 			case 3:
-				removerLivro(listaAdd);
+				RemoverLivro(lista);
 				break;
 			case 4:
 				std::cout << "Saindo...";
 				break;
 			default:
-				std::cout << "Nenhuma escolha valida!\n";
+				std::cout << "Opcao invalida!\n";
 				break;
 		}
-	}	
+	}
 }

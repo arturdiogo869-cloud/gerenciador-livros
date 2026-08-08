@@ -21,10 +21,7 @@ Um sistema em terminal para cadastro, listagem e remoção de livros, desenvolvi
 **Controle de Buffer:** `std::cin.ignore()` e `std::getline`
 **Fluxo do Programa:** Funções com retorno, menu dinâmico com `switch/case` e laço `while`
 
----
 
-##Próximos Passos de Evolução
-
-[ ] Refatorar a `struct` para uma `class` com encapsulamento (`private`/`public`).
-[ ] Implementar Getters e Setters com validações internas.
-[ ] Aplicar **Herança** para criar categorias diferentes de itens (ex: `LivroDigital`, `Revista`).
+PRIMEIRA ATUALIZAÇÃO, PONTOS IMPORTANTES!:
+##Biblioteca <fstream> adicionada!
+**Adicionado** salvamento de suas listagens pelo arquivo .txt "Lista", apagar ele irá resultar na perca de seus dados!
